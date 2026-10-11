@@ -26,6 +26,16 @@ describe('App', () => {
     isGain: true,
   };
 
+  /** Gasto ya pagado del mes de ejemplo. */
+  const paidExpense: Item = {
+    id: 2,
+    title: 'Alquiler',
+    price: 455000,
+    completed: true,
+    yearMonth: '2026-10',
+    isGain: false,
+  };
+
   /** Backend falso para responder los requests de la prueba. */
   let httpMock: HttpTestingController;
 
@@ -72,5 +82,22 @@ describe('App', () => {
     expect(toggle?.getAttribute('aria-checked')).toBe('true');
     expect(element.textContent).toContain('$ 400.000');
     expect(element.textContent).toContain('Vas a ahorrar el 22 % de lo que entra');
+  });
+
+  it('agrupa los movimientos en ingresos y gastos', async () => {
+    const fixture = TestBed.createComponent(App);
+    respondMonth([pendingIncome, paidExpense]);
+    await fixture.whenStable();
+
+    const element = fixture.nativeElement as HTMLElement;
+    const [incomes, expenses] = Array.from(element.querySelectorAll('app-item-group'));
+    expect(incomes.textContent).toContain('Ingresos');
+    expect(incomes.textContent).toContain('Trabajo freelance');
+    expect(incomes.textContent).toContain('Por cobrar');
+    expect(incomes.textContent).toContain('+ $ 300.000,00');
+    expect(expenses.textContent).toContain('Gastos');
+    expect(expenses.textContent).toContain('Alquiler');
+    expect(expenses.textContent).toContain('Pagado');
+    expect(expenses.textContent).toContain('− $ 455.000,00');
   });
 });
