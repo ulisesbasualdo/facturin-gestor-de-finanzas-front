@@ -1,12 +1,13 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component } from '@angular/core';
+import { TopBar } from './layout/top-bar';
+import { MonthNav } from './month/month-nav';
+import { MonthTitle } from './month/month-title';
+import { SummaryCard } from './summary/summary-card';
 
 @Component({
-  imports: [RouterOutlet],
   selector: 'app-root',
-  styleUrl: './app.scss',
+  imports: [TopBar, MonthNav, MonthTitle, SummaryCard],
   templateUrl: './app.html',
+  styleUrl: './app.scss',
 })
-export class App {
-  protected readonly title = signal('facturin-front-angular');
-}
+export class App {}

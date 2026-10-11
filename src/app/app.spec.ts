@@ -1,24 +1,76 @@
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { App } from './app';
+import { Item, MonthlySummary } from './items/item';
 
 describe('App', () => {
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+  /** Resumen de ejemplo que devuelve el backend falso. */
+  const summary: MonthlySummary = {
+    gained: 1500000,
+    spent: 900000,
+    pendingExpenses: 500000,
+    remaining: 600000,
+    projectedMonthEnd: 100000,
+    accumulatedBeforeThisMonth: 1000000,
+    totalProjectedSavings: 1100000,
+    trend: 'increase',
+  };
+
+  /** Ingreso todavía no cobrado del mes de ejemplo. */
+  const pendingIncome: Item = {
+    id: 1,
+    title: 'Trabajo freelance',
+    price: 300000,
+    completed: false,
+    yearMonth: '2026-10',
+    isGain: true,
+  };
+
+  /** Backend falso para responder los requests de la prueba. */
+  let httpMock: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
       imports: [App],
-    })
-      .compileComponents();
+      providers: [provideHttpClientTesting()],
+    });
+    httpMock = TestBed.inject(HttpTestingController);
   });
 
-  it('should create the app', () => {
-    const fixture = TestBed.createComponent(App);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
-  });
+  afterEach(() => httpMock.verify());
 
-  it('should render title', async () => {
+  /** Responde los requests de resumen e ítems del mes. */
+  function respondMonth(items: Item[]): void {
+    TestBed.tick();
+    httpMock.expectOne((request) => request.url.includes('/summary')).flush(summary);
+    httpMock.expectOne((request) => !request.url.includes('/summary')).flush(items);
+  }
+
+  it('muestra el resumen del mes cuando llega la respuesta', async () => {
     const fixture = TestBed.createComponent(App);
+    respondMonth([]);
     await fixture.whenStable();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, facturin-front-angular');
+
+    const text = (fixture.nativeElement as HTMLElement).textContent;
+    expect(text).toContain('Quedará al cierre de mes');
+    expect(text).toContain('$ 100.000');
+    expect(text).toContain('Vas a ahorrar el 7 % de lo que entra');
+  });
+
+  it('suma los ingresos por cobrar al activar el switch', async () => {
+    const fixture = TestBed.createComponent(App);
+    respondMonth([pendingIncome]);
+    await fixture.whenStable();
+
+    const element = fixture.nativeElement as HTMLElement;
+    const toggle = element.querySelector<HTMLButtonElement>('button[role="switch"]');
+    expect(toggle?.getAttribute('aria-checked')).toBe('false');
+
+    toggle?.click();
+    await fixture.whenStable();
+
+    expect(toggle?.getAttribute('aria-checked')).toBe('true');
+    expect(element.textContent).toContain('$ 400.000');
+    expect(element.textContent).toContain('Vas a ahorrar el 22 % de lo que entra');
   });
 });

@@ -1,0 +1,90 @@
+[
+  {
+    "id": 21,
+    "title": "Sueldo",
+    "price": 1500000,
+    "completed": true,
+    "yearMonth": "2026-09",
+    "isGain": true
+  },
+  {
+    "id": 22,
+    "title": "Trabajo freelance",
+    "price": 300000,
+    "completed": true,
+    "yearMonth": "2026-09",
+    "isGain": true
+  },
+  {
+    "id": 23,
+    "title": "Alquiler",
+    "price": 455000,
+    "completed": true,
+    "yearMonth": "2026-09",
+    "isGain": false
+  },
+  {
+    "id": 24,
+    "title": "Expensas",
+    "price": 84000,
+    "completed": true,
+    "yearMonth": "2026-09",
+    "isGain": false
+  },
+  {
+    "id": 25,
+    "title": "Supermercado",
+    "price": 263000,
+    "completed": true,
+    "yearMonth": "2026-09",
+    "isGain": false
+  },
+  {
+    "id": 26,
+    "title": "Luz y gas",
+    "price": 57000,
+    "completed": true,
+    "yearMonth": "2026-09",
+    "isGain": false
+  },
+  {
+    "id": 27,
+    "title": "Internet y teléfono",
+    "price": 39000,
+    "completed": true,
+    "yearMonth": "2026-09",
+    "isGain": false
+  },
+  {
+    "id": 28,
+    "title": "Tarjeta de crédito",
+    "price": 340000,
+    "completed": true,
+    "yearMonth": "2026-09",
+    "isGain": false
+  },
+  {
+    "id": 29,
+    "title": "Transporte",
+    "price": 44000,
+    "completed": true,
+    "yearMonth": "2026-09",
+    "isGain": false
+  },
+  {
+    "id": 30,
+    "title": "Gimnasio",
+    "price": 28000,
+    "completed": true,
+    "yearMonth": "2026-09",
+    "isGain": false
+  },
+  {
+    "id": 31,
+    "title": "Regalo de cumpleaños",
+    "price": 57000,
+    "completed": true,
+    "yearMonth": "2026-09",
+    "isGain": false
+  }
+]

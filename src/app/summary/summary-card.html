@@ -1,0 +1,73 @@
+@if (data(); as s) {
+  <div class="hero-grid">
+    <div class="hero">
+      <span class="label">Quedará al cierre de mes</span>
+      <p class="hero-amount num">
+        <span>{{ hero().integer }}</span><span class="decimals">{{ hero().decimals }}</span>
+      </p>
+      <div class="badge-row">
+        <span class="badge">
+          <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true">
+            @if (isNegative()) {
+              <path d="M3 7l6 6 4-4 8 8" />
+              <path d="M15 17h6v-6" />
+            } @else {
+              <path d="M3 17l6-6 4 4 8-8" />
+              <path d="M15 7h6v6" />
+            }
+          </svg>
+          {{ badgeText() }}
+        </span>
+        <span class="caption">Si se cumple todo lo planeado</span>
+      </div>
+      @if (pendingIncome() > 0) {
+        <div class="pending-income">
+          <app-switch label="Sumar ingresos por cobrar" [(checked)]="includePendingIncome" />
+          <span class="pending-amount num">{{ pendingIncome() | money: 'signed' }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="side">
+      <span class="label">Ahorro total proyectado</span>
+      <span class="total num">{{ totalProjected() | money }}</span>
+      <dl class="breakdown">
+        <div>
+          <dt>Ahorro acumulado</dt>
+          <dd class="num">{{ s.accumulatedBeforeThisMonth | money }}</dd>
+        </div>
+        <div>
+          <dt>Este mes</dt>
+          <dd class="num delta">{{ projected() | money: 'signed' }}</dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+
+  @if (isNegative()) {
+    <div class="alert" role="alert">
+      <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 3.5l9 16H3z" />
+        <path d="M12 10v4.5" />
+        <path d="M12 17.6v.1" />
+      </svg>
+      <span>
+        Este mes vas a gastar <strong class="num">{{ -projected() | money }}</strong> más de lo
+        que entra. Esa diferencia sale de tu ahorro acumulado.
+      </span>
+    </div>
+  }
+
+  <hr />
+
+  <div class="stats">
+    <app-summary-stat label="Ganado" [amount]="s.gained" />
+    <app-summary-stat label="Gastado" [amount]="s.spent" />
+    <app-summary-stat label="Falta gastar" [amount]="s.pendingExpenses" [muted]="true" />
+    <app-summary-stat label="Queda" hint="disponible hoy" [amount]="s.remaining" />
+  </div>
+} @else if (summary.error()) {
+  <p class="status" role="alert">No pudimos cargar el resumen de este mes.</p>
+} @else {
+  <p class="status">Cargando resumen…</p>
+}
