@@ -1,14 +1,32 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
+import { ThrottledClick } from '../shared/throttled-click';
 import { Item } from './item';
 
 @Component({
   selector: 'app-item-row',
+  imports: [ThrottledClick],
   template: `
-    <span class="check" aria-hidden="true">
-      @if (item().completed) {
-        <svg width="13" height="13" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" /></svg>
-      }
-    </span>
+    @if (editable()) {
+      <button
+        type="button"
+        class="check"
+        [attr.aria-label]="toggleLabel()"
+        appThrottledClick
+        (throttledClick)="toggle.emit()"
+      >
+        @if (item().completed) {
+          <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20 6L9 17l-5-5" />
+          </svg>
+        }
+      </button>
+    } @else {
+      <span class="check" aria-hidden="true">
+        @if (item().completed) {
+          <svg width="13" height="13" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" /></svg>
+        }
+      </span>
+    }
     <span class="glyph" aria-hidden="true">
       <svg width="15" height="15" viewBox="0 0 24 24">
         @if (item().isGain) {
@@ -24,6 +42,37 @@ import { Item } from './item';
     <span class="title">{{ item().title }}</span>
     <span class="chip">{{ status() }}</span>
     <span class="amount num">{{ item().price }}</span>
+    @if (editable()) {
+      <span class="actions">
+        <button
+          type="button"
+          class="icon-button"
+          [attr.aria-label]="'Duplicar ' + item().title"
+          title="Duplicar"
+          appThrottledClick
+          (throttledClick)="duplicate.emit()"
+        >
+          <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="9" y="9" width="12" height="12" rx="2.5" />
+            <path d="M5 15V6a2 2 0 0 1 2-2h9" />
+          </svg>
+        </button>
+        <button
+          type="button"
+          class="icon-button"
+          [attr.aria-label]="'Eliminar ' + item().title"
+          title="Eliminar"
+          appThrottledClick
+          (throttledClick)="remove.emit()"
+        >
+          <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 7h16" />
+            <path d="M9 7V4.5h6V7" />
+            <path d="M6.5 7l1 13h9l1-13" />
+          </svg>
+        </button>
+      </span>
+    }
   `,
   styles: `
     :host {
@@ -31,8 +80,13 @@ import { Item } from './item';
       align-items: center;
       gap: 12px;
       height: 64px;
-      padding: 0 14px;
+      padding: 0 8px 0 14px;
       border-radius: var(--fx-radius-row);
+      transition: background var(--fx-duration-fast) ease;
+    }
+    :host(.editable:hover),
+    :host(.editable:focus-within) {
+      background: var(--fx-surface-hover);
     }
     svg {
       fill: none;
@@ -122,6 +176,41 @@ import { Item } from './item';
     :host(.gain.done) .amount {
       color: var(--fx-success);
     }
+    .actions {
+      flex: none;
+      display: flex;
+      gap: 2px;
+      opacity: 0;
+      transition: opacity var(--fx-duration-fast) ease;
+    }
+    :host(:hover) .actions,
+    :host(:focus-within) .actions {
+      opacity: 1;
+    }
+    .icon-button {
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      border-radius: var(--fx-radius-sm);
+      color: var(--fx-text-3);
+      transition:
+        background var(--fx-duration-fast) ease,
+        color var(--fx-duration-fast) ease;
+
+      svg {
+        stroke-width: 1.8;
+      }
+    }
+    .icon-button:hover {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--fx-text-1);
+    }
+    @media (hover: none) {
+      .actions {
+        opacity: 1;
+      }
+    }
     @media (max-width: 640px) {
       .chip {
         display: none;
@@ -135,16 +224,32 @@ import { Item } from './item';
   host: {
     '[class.done]': 'item().completed',
     '[class.gain]': 'item().isGain',
+    '[class.editable]': 'editable()',
   },
 })
 export class ItemRow {
   /** Movimiento a mostrar. */
   readonly item = input.required<Item>();
+  /** Si es `true`, muestra los botones para modificar el movimiento. */
+  readonly editable = input(false);
+
+  /** Se emite al pedir alternar entre completado y pendiente. */
+  readonly toggle = output();
+  /** Se emite al pedir duplicar el movimiento. */
+  readonly duplicate = output();
+  /** Se emite al pedir eliminar el movimiento. */
+  readonly remove = output();
 
   /** Estado legible: cobrado, pagado, por cobrar o por pagar. */
   protected readonly status = computed(() => {
     const { completed, isGain } = this.item();
     if (completed) return isGain ? 'Cobrado' : 'Pagado';
     return isGain ? 'Por cobrar' : 'Por pagar';
+  });
+  /** Texto del botón que alterna el estado (`Marcar «Alquiler» como pagado`). */
+  protected readonly toggleLabel = computed(() => {
+    const { completed, isGain, title } = this.item();
+    if (completed) return `Marcar «${title}» como pendiente`;
+    return `Marcar «${title}» como ${isGain ? 'cobrado' : 'pagado'}`;
   });
 }

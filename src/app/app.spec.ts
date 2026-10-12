@@ -78,7 +78,7 @@ describe('App', () => {
     const element = fixture.nativeElement as HTMLElement;
     expect(element.textContent).toContain('Quedará al cierre de mes');
     expect(element.querySelector('.hero-amount')?.textContent?.trim()).toBe('100000');
-    expect(element.textContent).toContain('Vas a ahorrar el 7 % de lo que entra');
+    expect(element.querySelector('.badge')?.textContent?.trim()).toBe('Ahorrás 100000');
   });
 
   it('usa la proyección con ingresos por cobrar al activar el switch', async () => {
@@ -95,7 +95,7 @@ describe('App', () => {
 
     expect(toggle?.getAttribute('aria-checked')).toBe('true');
     expect(element.querySelector('.hero-amount')?.textContent?.trim()).toBe('400000');
-    expect(element.textContent).toContain('Vas a ahorrar el 22 % de lo que entra');
+    expect(element.querySelector('.badge')?.textContent?.trim()).toBe('Ahorrás 400000');
   });
 
   it('agrupa los movimientos con los totales del backend', async () => {
@@ -137,9 +137,11 @@ describe('App', () => {
     expect(buttonByText(element, 'Cerrar mes')).toBeDefined();
 
     element.querySelector<HTMLButtonElement>('button[aria-label^="Mes siguiente"]')?.click();
-    const close = httpMock.expectOne((request) => request.url.endsWith('/close'));
+    respondMonth([]);
+    const close = await vi.waitFor(() =>
+      httpMock.expectOne((request) => request.url.endsWith('/close')),
+    );
     expect(close.request.method).toBe('POST');
     close.flush({ status: 'closed' });
-    respondMonth([]);
   });
 });

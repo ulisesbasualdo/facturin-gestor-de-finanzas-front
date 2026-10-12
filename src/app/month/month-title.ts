@@ -31,9 +31,6 @@ import { MonthStore } from './month-store';
         }
       }
     </div>
-    @if (store.statusError(); as error) {
-      <p class="error" role="alert">{{ error }}</p>
-    }
   `,
   styles: `
     :host {
@@ -79,9 +76,6 @@ import { MonthStore } from './month-store';
     button:disabled {
       opacity: 0.5;
       cursor: default;
-    }
-    .error {
-      color: var(--fx-danger);
     }
   `,
 })

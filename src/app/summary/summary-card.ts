@@ -48,14 +48,9 @@ export class SummaryCard {
   protected readonly isNegative = computed(() => this.projected() < 0);
   /** Texto de la etiqueta que resume la tendencia del mes. */
   protected readonly badgeText = computed(() => {
-    const summary = this.data();
-    const income = (this.includePendingIncome() ? summary?.totalIncome : summary?.gained) ?? 0;
     const projected = this.projected();
-    const percent = income > 0 ? Math.round((Math.abs(projected) / income) * 100) : 0;
     if (projected === 0) return 'Mes en equilibrio';
-    if (projected < 0) {
-      return income > 0 ? `Gastás ${percent} % más de lo que entra` : 'Usás ahorro acumulado';
-    }
-    return `Vas a ahorrar el ${percent} % de lo que entra`;
+    if (projected < 0) return `Gastás ${-projected} más de lo que entra`;
+    return `Ahorrás ${projected}`;
   });
 }

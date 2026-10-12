@@ -1,5 +1,6 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { Item } from './item';
+import { ItemActions } from './item-actions';
 import { ItemRow } from './item-row';
 
 /** Tipo de grupo: ingresos o gastos. */
@@ -26,7 +27,15 @@ const GROUP_TEXTS = {
     </div>
     <ul class="rows">
       @for (item of items(); track item.id) {
-        <li><app-item-row [item]="item" /></li>
+        <li>
+          <app-item-row
+            [item]="item"
+            [editable]="editable()"
+            (toggle)="actions.toggle(item)"
+            (duplicate)="actions.duplicate(item)"
+            (remove)="actions.remove(item)"
+          />
+        </li>
       } @empty {
         <li class="empty">{{ texts().empty }}</li>
       }
@@ -91,6 +100,11 @@ export class ItemGroup {
   readonly doneTotal = input.required<number>();
   /** Total del grupo, calculado por el backend. */
   readonly total = input.required<number>();
+  /** Si es `true`, los movimientos se pueden modificar. */
+  readonly editable = input(false);
+
+  /** Acciones sobre los movimientos. */
+  protected readonly actions = inject(ItemActions);
 
   /** Título, etiqueta de completados y mensaje vacío del grupo. */
   protected readonly texts = computed(() => GROUP_TEXTS[this.kind()]);

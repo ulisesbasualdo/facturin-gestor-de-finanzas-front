@@ -2,14 +2,18 @@ import { httpResource } from '@angular/common/http';
 import { computed, inject, Service, signal } from '@angular/core';
 import { firstValueFrom, Observable } from 'rxjs';
 import { apiEndpoints } from '../api/api-endpoints';
+import { userErrorMessage } from '../api/http-error-message';
 import { Item, MonthlySummary } from '../items/item';
-import { addMonths, compareMonths, toYearMonth } from './calendar';
+import { Toaster } from '../shared/toaster';
+import { addMonths, compareMonths, monthName, toYearMonth } from './calendar';
 import { MonthApi } from './month-api';
 
 @Service()
 export class MonthStore {
   /** Endpoints para cerrar y reabrir meses. */
   private readonly api = inject(MonthApi);
+  /** Avisos para el usuario. */
+  private readonly toaster = inject(Toaster);
 
   /** Fecha de hoy, tomada al iniciar la app. */
   readonly today = new Date();
@@ -45,10 +49,20 @@ export class MonthStore {
   private readonly changingStatus = signal(false);
   /** Indica si hay un pedido de cierre o reapertura en curso. */
   readonly isChangingStatus = this.changingStatus.asReadonly();
-  /** Último error al cerrar o reabrir, modificable solo desde este servicio. */
-  private readonly statusFailure = signal<string | undefined>(undefined);
-  /** Último error al cerrar o reabrir el mes seleccionado. */
-  readonly statusError = this.statusFailure.asReadonly();
+
+  /** Tareas que se ejecutan antes de dejar el mes seleccionado. */
+  private readonly leaveTasks: (() => Promise<unknown>)[] = [];
+
+  /** Registra una tarea que se ejecuta antes de dejar el mes seleccionado. */
+  onLeave(task: () => Promise<unknown>): void {
+    this.leaveTasks.push(task);
+  }
+
+  /** Vuelve a pedir el resumen y los ítems del mes seleccionado. */
+  refresh(): void {
+    this.summary.reload();
+    this.items.reload();
+  }
 
   /** Selecciona el mes anterior. */
   previous(): void {
@@ -67,42 +81,59 @@ export class MonthStore {
 
   /** Reabre el mes seleccionado. */
   reopen(): Promise<void> {
-    return this.changeStatus(this.api.reopen(this.yearMonth()), 'No pudimos reabrir el mes.');
+    const yearMonth = this.yearMonth();
+    return this.changeStatus(
+      this.api.reopen(yearMonth),
+      `Reabriste ${monthName(yearMonth)}. Ya podés modificarlo.`,
+      'No pudimos reabrir el mes.',
+    );
   }
 
   /** Vuelve a cerrar el mes seleccionado. */
   close(): Promise<void> {
-    return this.changeStatus(this.api.close(this.yearMonth()), 'No pudimos cerrar el mes.');
+    const yearMonth = this.yearMonth();
+    return this.changeStatus(
+      this.api.close(yearMonth),
+      `Cerraste ${monthName(yearMonth)}.`,
+      'No pudimos cerrar el mes.',
+    );
   }
 
-  /** Cambia de mes, cerrando antes el actual si estaba reabierto. */
+  /** Cambia de mes; el que se deja se cierra si estaba reabierto, después de sus tareas pendientes. */
   private select(yearMonth: string): void {
-    this.closeIfReopened();
-    this.statusFailure.set(undefined);
+    const leaving = this.yearMonth();
+    const wasReopened = this.status() === 'reopened';
+    const pendingTasks = Promise.allSettled(this.leaveTasks.map((task) => task()));
     this.selected.set(yearMonth);
+    if (wasReopened) {
+      void pendingTasks.then(() => this.closeLeftMonth(leaving));
+    }
   }
 
-  /** Pide cerrar el mes seleccionado si está reabierto, sin esperar la respuesta. */
-  private closeIfReopened(): void {
-    if (this.status() !== 'reopened') return;
-    const leaving = this.yearMonth();
+  /** Pide cerrar un mes que se dejó reabierto, sin esperar la respuesta. */
+  private closeLeftMonth(leaving: string): void {
     this.api.close(leaving).subscribe({
       next: () => {
+        this.toaster.success(`${monthName(leaving)} se volvió a cerrar.`);
         if (this.yearMonth() === leaving) this.summary.reload();
       },
       error: () => undefined,
     });
   }
 
-  /** Envía un pedido de cierre o reapertura y recarga el resumen. */
-  private async changeStatus(request: Observable<unknown>, errorMessage: string): Promise<void> {
+  /** Envía un pedido de cierre o reapertura, avisa el resultado y recarga el resumen. */
+  private async changeStatus(
+    request: Observable<unknown>,
+    successMessage: string,
+    errorMessage: string,
+  ): Promise<void> {
     this.changingStatus.set(true);
-    this.statusFailure.set(undefined);
     try {
       await firstValueFrom(request);
+      this.toaster.success(successMessage);
       this.summary.reload();
-    } catch {
-      this.statusFailure.set(errorMessage);
+    } catch (error) {
+      this.toaster.error(userErrorMessage(error, errorMessage));
     } finally {
       this.changingStatus.set(false);
     }

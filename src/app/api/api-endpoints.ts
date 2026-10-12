@@ -11,6 +11,12 @@ export const apiEndpoints = {
   itemsByMonth: (yearMonth: string) => `${baseUrl}/items/${yearMonth}${extension}`,
   /** URL del resumen financiero de un mes. */
   summary: (yearMonth: string) => `${baseUrl}/items/${yearMonth}/summary${extension}`,
+  /** URL de un ítem, para modificarlo o eliminarlo. */
+  item: (id: number) => `${baseUrl}/items/${id}`,
+  /** URL para recuperar un ítem eliminado. */
+  restoreItem: (id: number) => `${baseUrl}/items/${id}/restore`,
+  /** URL para duplicar un ítem. */
+  duplicateItem: (id: number) => `${baseUrl}/items/${id}/duplicate`,
   /** URL para reabrir un mes pasado. */
   reopenMonth: (yearMonth: string) => `${baseUrl}/months/${yearMonth}/reopen`,
   /** URL para volver a cerrar un mes reabierto. */
