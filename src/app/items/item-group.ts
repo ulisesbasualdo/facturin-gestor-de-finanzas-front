@@ -1,5 +1,4 @@
 import { Component, computed, input } from '@angular/core';
-import { MoneyPipe } from '../shared/money.pipe';
 import { Item } from './item';
 import { ItemRow } from './item-row';
 
@@ -12,14 +11,9 @@ const GROUP_TEXTS = {
   expense: { title: 'Gastos', done: 'Pagado', empty: 'No hay gastos este mes.' },
 } as const;
 
-/** Suma los montos de una lista de movimientos. */
-function sumPrices(items: Item[]): number {
-  return items.reduce((total, item) => total + item.price, 0);
-}
-
 @Component({
   selector: 'app-item-group',
-  imports: [MoneyPipe, ItemRow],
+  imports: [ItemRow],
   template: `
     <div class="heading">
       <div class="name">
@@ -27,8 +21,7 @@ function sumPrices(items: Item[]): number {
         <span class="count num">{{ countText() }}</span>
       </div>
       <span class="progress num">
-        {{ texts().done }} <span class="done">{{ doneTotal() | money }}</span> de
-        {{ total() | money }}
+        {{ texts().done }} <span class="done">{{ doneTotal() }}</span> de {{ total() }}
       </span>
     </div>
     <ul class="rows">
@@ -94,6 +87,10 @@ export class ItemGroup {
   readonly kind = input.required<ItemKind>();
   /** Movimientos del grupo. */
   readonly items = input.required<Item[]>();
+  /** Total ya cobrado o pagado, calculado por el backend. */
+  readonly doneTotal = input.required<number>();
+  /** Total del grupo, calculado por el backend. */
+  readonly total = input.required<number>();
 
   /** Título, etiqueta de completados y mensaje vacío del grupo. */
   protected readonly texts = computed(() => GROUP_TEXTS[this.kind()]);
@@ -102,10 +99,4 @@ export class ItemGroup {
     const count = this.items().length;
     return `${count} ${count === 1 ? 'movimiento' : 'movimientos'}`;
   });
-  /** Suma de los movimientos ya cobrados o pagados. */
-  protected readonly doneTotal = computed(() =>
-    sumPrices(this.items().filter((item) => item.completed)),
-  );
-  /** Suma de todos los movimientos del grupo. */
-  protected readonly total = computed(() => sumPrices(this.items()));
 }

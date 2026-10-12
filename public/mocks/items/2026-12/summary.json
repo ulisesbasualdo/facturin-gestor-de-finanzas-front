@@ -1,10 +1,16 @@
 {
   "gained": 0,
   "spent": 0,
+  "pendingIncome": 2550000,
   "pendingExpenses": 2206000,
+  "totalIncome": 2550000,
+  "totalExpenses": 2206000,
   "remaining": 0,
   "projectedMonthEnd": -2206000,
-  "accumulatedBeforeThisMonth": 2020000,
-  "totalProjectedSavings": -186000,
-  "trend": "decrease"
+  "projectedWithPendingIncome": 344000,
+  "accumulatedBeforeThisMonth": 2019549.25,
+  "totalProjectedSavings": -186450.75,
+  "totalProjectedSavingsWithPendingIncome": 2363549.25,
+  "trend": "decrease",
+  "monthStatus": "open"
 }

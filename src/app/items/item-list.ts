@@ -7,13 +7,23 @@ import { ItemGroup } from './item-group';
   imports: [ItemGroup],
   template: `
     <h2>Movimientos</h2>
-    @if (items.error()) {
+    @if (items.error() || summary.error()) {
       <p class="status" role="alert">No pudimos cargar los movimientos de este mes.</p>
-    } @else if (items.isLoading()) {
-      <p class="status">Cargando movimientos…</p>
+    } @else if (loadedSummary(); as totals) {
+      <app-item-group
+        kind="income"
+        [items]="incomes()"
+        [doneTotal]="totals.gained"
+        [total]="totals.totalIncome"
+      />
+      <app-item-group
+        kind="expense"
+        [items]="expenses()"
+        [doneTotal]="totals.spent"
+        [total]="totals.totalExpenses"
+      />
     } @else {
-      <app-item-group kind="income" [items]="incomes()" />
-      <app-item-group kind="expense" [items]="expenses()" />
+      <p class="status">Cargando movimientos…</p>
     }
   `,
   styles: `
@@ -37,7 +47,7 @@ import { ItemGroup } from './item-group';
   host: {
     role: 'region',
     'aria-label': 'Movimientos del mes',
-    '[attr.aria-busy]': 'items.isLoading()',
+    '[attr.aria-busy]': 'items.isLoading() || summary.isLoading()',
   },
 })
 export class ItemList {
@@ -46,6 +56,12 @@ export class ItemList {
 
   /** Recurso HTTP con los movimientos del mes seleccionado. */
   protected readonly items = this.store.items;
+  /** Recurso HTTP con el resumen del mes seleccionado, que trae los totales de cada grupo. */
+  protected readonly summary = this.store.summary;
+  /** Resumen del mes, o `undefined` hasta que carguen tanto el resumen como los movimientos. */
+  protected readonly loadedSummary = computed(() =>
+    !this.items.isLoading() && this.summary.hasValue() ? this.summary.value() : undefined,
+  );
   /** Movimientos que son ingresos. */
   protected readonly incomes = computed(() => this.items.value().filter((item) => item.isGain));
   /** Movimientos que son gastos. */

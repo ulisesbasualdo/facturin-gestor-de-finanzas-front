@@ -8,7 +8,32 @@ import { MonthStore } from './month-store';
     <h1>
       {{ name() }} <span class="year">{{ year() }}</span>
     </h1>
-    <p>{{ status() }}</p>
+    <div class="status">
+      <p>{{ status() }}</p>
+      @switch (store.status()) {
+        @case ('closed') {
+          <button
+            type="button"
+            [disabled]="store.isChangingStatus()"
+            (click)="store.reopen()"
+          >
+            Reabrir mes
+          </button>
+        }
+        @case ('reopened') {
+          <button
+            type="button"
+            [disabled]="store.isChangingStatus()"
+            (click)="store.close()"
+          >
+            Cerrar mes
+          </button>
+        }
+      }
+    </div>
+    @if (store.statusError(); as error) {
+      <p class="error" role="alert">{{ error }}</p>
+    }
   `,
   styles: `
     :host {
@@ -27,26 +52,54 @@ import { MonthStore } from './month-store';
       color: var(--fx-text-4);
       font-weight: 400;
     }
+    .status {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      min-height: 32px;
+    }
     p {
       margin: 0;
       font-size: 14px;
       color: var(--fx-text-3);
     }
+    button {
+      height: 32px;
+      padding: 0 14px;
+      border-radius: var(--fx-radius-pill);
+      border: 1px solid var(--fx-border);
+      font-size: 13px;
+      font-weight: 500;
+      transition: background var(--fx-duration-fast) ease;
+    }
+    button:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.06);
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
+    .error {
+      color: var(--fx-danger);
+    }
   `,
 })
 export class MonthTitle {
   /** Estado del mes seleccionado. */
-  private readonly store = inject(MonthStore);
+  protected readonly store = inject(MonthStore);
 
   /** Nombre del mes seleccionado. */
   protected readonly name = computed(() => monthName(this.store.yearMonth()));
   /** Año del mes seleccionado. */
   protected readonly year = computed(() => yearOf(this.store.yearMonth()));
-  /** Texto que indica si el mes está cerrado, en curso o planeado. */
+  /** Texto que indica si el mes está cerrado, reabierto, en curso o planeado. */
   protected readonly status = computed(() => {
     switch (this.store.timing()) {
       case 'past':
-        return 'Mes cerrado';
+        return this.store.status() === 'reopened'
+          ? 'Mes reabierto · se vuelve a cerrar al salir'
+          : 'Mes cerrado';
       case 'current':
         return `Mes en curso · hoy es ${formatDayMonth(this.store.today)}`;
       case 'future':

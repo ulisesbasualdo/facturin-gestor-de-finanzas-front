@@ -34,7 +34,7 @@
   {
     "id": 36,
     "title": "Supermercado",
-    "price": 263000,
+    "price": 263450.75,
     "completed": true,
     "yearMonth": "2026-10",
     "isGain": false
@@ -42,7 +42,7 @@
   {
     "id": 37,
     "title": "Luz y gas",
-    "price": 57000,
+    "price": 57230.4,
     "completed": false,
     "yearMonth": "2026-10",
     "isGain": false

@@ -1,9 +1,7 @@
 import { Component, input } from '@angular/core';
-import { MoneyPipe } from '../shared/money.pipe';
 
 @Component({
   selector: 'app-summary-stat',
-  imports: [MoneyPipe],
   template: `
     <span class="label">
       {{ label() }}
@@ -11,7 +9,7 @@ import { MoneyPipe } from '../shared/money.pipe';
         <span class="hint">· {{ hint() }}</span>
       }
     </span>
-    <span class="value num" [class.muted]="muted()">{{ amount() | money }}</span>
+    <span class="value num" [class.muted]="muted()">{{ amount() }}</span>
   `,
   styles: `
     :host {
@@ -40,7 +38,7 @@ import { MoneyPipe } from '../shared/money.pipe';
 export class SummaryStat {
   /** Texto que describe la cifra (`Ganado`, `Gastado`…). */
   readonly label = input.required<string>();
-  /** Monto en pesos a mostrar. */
+  /** Monto a mostrar, tal como llega del backend. */
   readonly amount = input.required<number>();
   /** Aclaración opcional que se muestra junto a la etiqueta (`disponible hoy`). */
   readonly hint = input<string>();

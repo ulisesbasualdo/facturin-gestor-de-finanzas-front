@@ -2,9 +2,7 @@
   <div class="hero-grid">
     <div class="hero">
       <span class="label">Quedará al cierre de mes</span>
-      <p class="hero-amount num">
-        <span>{{ hero().integer }}</span><span class="decimals">{{ hero().decimals }}</span>
-      </p>
+      <p class="hero-amount num">{{ projected() }}</p>
       <div class="badge-row">
         <span class="badge">
           <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true">
@@ -23,22 +21,22 @@
       @if (pendingIncome() > 0) {
         <div class="pending-income">
           <app-switch label="Sumar ingresos por cobrar" [(checked)]="includePendingIncome" />
-          <span class="pending-amount num">{{ pendingIncome() | money: 'signed' }}</span>
+          <span class="pending-amount num">{{ pendingIncome() }}</span>
         </div>
       }
     </div>
 
     <div class="side">
       <span class="label">Ahorro total proyectado</span>
-      <span class="total num">{{ totalProjected() | money }}</span>
+      <span class="total num">{{ totalProjected() }}</span>
       <dl class="breakdown">
         <div>
           <dt>Ahorro acumulado</dt>
-          <dd class="num">{{ s.accumulatedBeforeThisMonth | money }}</dd>
+          <dd class="num">{{ s.accumulatedBeforeThisMonth }}</dd>
         </div>
         <div>
           <dt>Este mes</dt>
-          <dd class="num delta">{{ projected() | money: 'signed' }}</dd>
+          <dd class="num delta">{{ projected() }}</dd>
         </div>
       </dl>
     </div>
@@ -52,7 +50,7 @@
         <path d="M12 17.6v.1" />
       </svg>
       <span>
-        Este mes vas a gastar <strong class="num">{{ -projected() | money }}</strong> más de lo
+        Este mes vas a gastar <strong class="num">{{ -projected() }}</strong> más de lo
         que entra. Esa diferencia sale de tu ahorro acumulado.
       </span>
     </div>

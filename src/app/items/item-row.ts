@@ -1,10 +1,8 @@
 import { Component, computed, input } from '@angular/core';
-import { MoneyPipe } from '../shared/money.pipe';
 import { Item } from './item';
 
 @Component({
   selector: 'app-item-row',
-  imports: [MoneyPipe],
   template: `
     <span class="check" aria-hidden="true">
       @if (item().completed) {
@@ -22,9 +20,10 @@ import { Item } from './item';
         }
       </svg>
     </span>
+    <span class="sr-only">{{ item().isGain ? 'Ingreso' : 'Gasto' }}:</span>
     <span class="title">{{ item().title }}</span>
     <span class="chip">{{ status() }}</span>
-    <span class="amount num">{{ signedAmount() | money: 'signed' }}</span>
+    <span class="amount num">{{ item().price }}</span>
   `,
   styles: `
     :host {
@@ -147,10 +146,5 @@ export class ItemRow {
     const { completed, isGain } = this.item();
     if (completed) return isGain ? 'Cobrado' : 'Pagado';
     return isGain ? 'Por cobrar' : 'Por pagar';
-  });
-  /** Monto positivo para ingresos y negativo para gastos. */
-  protected readonly signedAmount = computed(() => {
-    const { price, isGain } = this.item();
-    return isGain ? price : -price;
   });
 }
