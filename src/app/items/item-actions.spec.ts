@@ -1,25 +1,17 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
-import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { MonthStatus } from '../month/month-status';
 import { MonthStore } from '../month/month-store';
 import { Toaster } from '../shared/toaster';
-import { UndoStack } from '../shared/undo-stack';
 import { Item } from './item';
 import { ItemActions } from './item-actions';
 
-/** Doble de prueba de `MonthStore` con solo lo que usan las acciones y la pila de deshacer. */
+/** Doble de prueba de `MonthStore` con solo lo que usan las acciones. */
 function createFakeMonthStore() {
-  return {
-    status: signal<MonthStatus | undefined>('open'),
-    onLeave: vi.fn(),
-    refresh: vi.fn(),
-  };
+  return { refresh: vi.fn() };
 }
 
 describe('ItemActions', () => {
   let actions: ItemActions;
-  let undoStack: UndoStack;
   let toaster: Toaster;
   let httpMock: HttpTestingController;
   let store: ReturnType<typeof createFakeMonthStore>;
@@ -40,7 +32,6 @@ describe('ItemActions', () => {
       providers: [provideHttpClientTesting(), { provide: MonthStore, useValue: store }],
     });
     actions = TestBed.inject(ItemActions);
-    undoStack = TestBed.inject(UndoStack);
     toaster = TestBed.inject(Toaster);
     httpMock = TestBed.inject(HttpTestingController);
   });
@@ -52,7 +43,7 @@ describe('ItemActions', () => {
     return httpMock.expectOne((request) => request.method === method && request.url.endsWith(urlEnd));
   }
 
-  it('marca como pagado y al deshacer vuelve a pendiente', async () => {
+  it('marca como pagado sin mostrar tostada, porque el cambio se ve en la fila', async () => {
     const done = actions.toggle(rent);
     const patch = expectRequest('PATCH', '/items/5');
     expect(patch.request.body).toEqual({ completed: true });
@@ -61,40 +52,46 @@ describe('ItemActions', () => {
 
     expect(store.refresh).toHaveBeenCalledOnce();
     expect(toaster.toasts()).toEqual([]);
-    expect(undoStack.nextDescription()).toBe('marcar «Alquiler» como pagado');
-
-    const undone = undoStack.undo();
-    const revert = expectRequest('PATCH', '/items/5');
-    expect(revert.request.body).toEqual({ completed: false });
-    revert.flush(rent);
-    await undone;
   });
 
-  it('duplica y al deshacer elimina la copia, no el original', async () => {
+  it('duplica y avisa con una tostada sin botón', async () => {
     const done = actions.duplicate(rent);
     expectRequest('POST', '/items/5/duplicate').flush({ ...rent, id: 9 });
     await done;
 
-    expect(toaster.toasts()[0].message).toBe('Duplicaste «Alquiler».');
-
-    const undone = undoStack.undo();
-    expectRequest('DELETE', '/items/9').flush(null);
-    await undone;
+    const [toast] = toaster.toasts();
+    expect(toast.message).toBe('Duplicaste «Alquiler».');
+    expect(toast.action).toBeUndefined();
   });
 
-  it('elimina y al deshacer restaura el mismo ítem', async () => {
+  it('elimina y ofrece deshacer desde una tostada', async () => {
     const done = actions.remove(rent);
     expectRequest('DELETE', '/items/5').flush(null);
     await done;
 
-    expect(toaster.toasts()[0].message).toBe('Eliminaste «Alquiler».');
-
-    const undone = undoStack.undo();
-    expectRequest('POST', '/items/5/restore').flush(rent);
-    await undone;
+    const [toast] = toaster.toasts();
+    expect(toast.message).toBe('Eliminaste «Alquiler».');
+    expect(toast.action?.label).toBe('Deshacer');
+    expect(store.refresh).toHaveBeenCalledOnce();
   });
 
-  it('muestra el mensaje del backend en errores de negocio y no registra la acción', async () => {
+  it('al deshacer un borrado crea el ítem de nuevo con los mismos datos y sin el id viejo', async () => {
+    const done = actions.remove(rent);
+    expectRequest('DELETE', '/items/5').flush(null);
+    await done;
+
+    toaster.runAction(toaster.toasts()[0]);
+    const create = expectRequest('POST', '/items');
+    const { id: _id, ...data } = rent;
+    expect(create.request.body).toEqual(data);
+    create.flush({ ...rent, id: 12 });
+    await vi.waitFor(() =>
+      expect(toaster.toasts().map((toast) => toast.message)).toEqual(['Restauraste «Alquiler».']),
+    );
+    expect(store.refresh).toHaveBeenCalledTimes(2);
+  });
+
+  it('muestra el mensaje del backend en errores de negocio', async () => {
     const done = actions.remove(rent);
     expectRequest('DELETE', '/items/5').flush(
       { message: 'El mes 2026-09 está cerrado. Reabrilo para modificarlo.' },
@@ -102,11 +99,10 @@ describe('ItemActions', () => {
     );
     await done;
 
-    expect(toaster.toasts()[0]).toMatchObject({
-      kind: 'error',
-      message: 'El mes 2026-09 está cerrado. Reabrilo para modificarlo.',
-    });
-    expect(undoStack.canUndo()).toBe(false);
+    const [toast] = toaster.toasts();
+    expect(toast.kind).toBe('error');
+    expect(toast.message).toBe('El mes 2026-09 está cerrado. Reabrilo para modificarlo.');
+    expect(toast.action).toBeUndefined();
     expect(store.refresh).not.toHaveBeenCalled();
   });
 

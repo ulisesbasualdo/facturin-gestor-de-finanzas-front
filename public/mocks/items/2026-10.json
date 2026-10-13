@@ -1,56 +1,24 @@
 [
   {
-    "id": 32,
-    "title": "Sueldo",
-    "price": 1500000,
-    "completed": true,
-    "yearMonth": "2026-10",
-    "isGain": true
-  },
-  {
-    "id": 33,
-    "title": "Trabajo freelance",
-    "price": 300000,
-    "completed": false,
-    "yearMonth": "2026-10",
-    "isGain": true
-  },
-  {
-    "id": 34,
-    "title": "Alquiler",
-    "price": 455000,
-    "completed": true,
-    "yearMonth": "2026-10",
-    "isGain": false
-  },
-  {
-    "id": 35,
-    "title": "Expensas",
-    "price": 84000,
-    "completed": true,
-    "yearMonth": "2026-10",
-    "isGain": false
-  },
-  {
-    "id": 36,
-    "title": "Supermercado",
-    "price": 263450.75,
-    "completed": true,
-    "yearMonth": "2026-10",
-    "isGain": false
-  },
-  {
-    "id": 37,
-    "title": "Luz y gas",
-    "price": 57230.4,
+    "id": 42,
+    "title": "Curso online",
+    "price": 117000,
     "completed": false,
     "yearMonth": "2026-10",
     "isGain": false
   },
   {
-    "id": 38,
-    "title": "Internet y teléfono",
-    "price": 39000,
+    "id": 41,
+    "title": "Gimnasio",
+    "price": 28000,
+    "completed": true,
+    "yearMonth": "2026-10",
+    "isGain": false
+  },
+  {
+    "id": 40,
+    "title": "Transporte",
+    "price": 44000,
     "completed": true,
     "yearMonth": "2026-10",
     "isGain": false
@@ -64,27 +32,59 @@
     "isGain": false
   },
   {
-    "id": 40,
-    "title": "Transporte",
-    "price": 44000,
+    "id": 38,
+    "title": "Internet y teléfono",
+    "price": 39000,
     "completed": true,
     "yearMonth": "2026-10",
     "isGain": false
   },
   {
-    "id": 41,
-    "title": "Gimnasio",
-    "price": 28000,
-    "completed": true,
-    "yearMonth": "2026-10",
-    "isGain": false
-  },
-  {
-    "id": 42,
-    "title": "Curso online",
-    "price": 117000,
+    "id": 37,
+    "title": "Luz y gas",
+    "price": 57230.4,
     "completed": false,
     "yearMonth": "2026-10",
     "isGain": false
+  },
+  {
+    "id": 36,
+    "title": "Supermercado",
+    "price": 263450.75,
+    "completed": true,
+    "yearMonth": "2026-10",
+    "isGain": false
+  },
+  {
+    "id": 35,
+    "title": "Expensas",
+    "price": 84000,
+    "completed": true,
+    "yearMonth": "2026-10",
+    "isGain": false
+  },
+  {
+    "id": 34,
+    "title": "Alquiler",
+    "price": 455000,
+    "completed": true,
+    "yearMonth": "2026-10",
+    "isGain": false
+  },
+  {
+    "id": 33,
+    "title": "Trabajo freelance",
+    "price": 300000,
+    "completed": false,
+    "yearMonth": "2026-10",
+    "isGain": true
+  },
+  {
+    "id": 32,
+    "title": "Sueldo",
+    "price": 1500000,
+    "completed": true,
+    "yearMonth": "2026-10",
+    "isGain": true
   }
 ]

@@ -137,11 +137,9 @@ describe('App', () => {
     expect(buttonByText(element, 'Cerrar mes')).toBeDefined();
 
     element.querySelector<HTMLButtonElement>('button[aria-label^="Mes siguiente"]')?.click();
-    respondMonth([]);
-    const close = await vi.waitFor(() =>
-      httpMock.expectOne((request) => request.url.endsWith('/close')),
-    );
+    const close = httpMock.expectOne((request) => request.url.endsWith('/close'));
     expect(close.request.method).toBe('POST');
     close.flush({ status: 'closed' });
+    respondMonth([]);
   });
 });

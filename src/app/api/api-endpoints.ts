@@ -13,8 +13,8 @@ export const apiEndpoints = {
   summary: (yearMonth: string) => `${baseUrl}/items/${yearMonth}/summary${extension}`,
   /** URL de un ítem, para modificarlo o eliminarlo. */
   item: (id: number) => `${baseUrl}/items/${id}`,
-  /** URL para recuperar un ítem eliminado. */
-  restoreItem: (id: number) => `${baseUrl}/items/${id}/restore`,
+  /** URL para crear ítems. */
+  items: () => `${baseUrl}/items`,
   /** URL para duplicar un ítem. */
   duplicateItem: (id: number) => `${baseUrl}/items/${id}/duplicate`,
   /** URL para reabrir un mes pasado. */

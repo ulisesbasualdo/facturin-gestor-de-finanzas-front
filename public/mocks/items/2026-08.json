@@ -1,64 +1,8 @@
 [
   {
-    "id": 11,
-    "title": "Sueldo",
-    "price": 1500000,
-    "completed": true,
-    "yearMonth": "2026-08",
-    "isGain": true
-  },
-  {
-    "id": 12,
-    "title": "Trabajo freelance",
-    "price": 300000,
-    "completed": true,
-    "yearMonth": "2026-08",
-    "isGain": true
-  },
-  {
-    "id": 13,
-    "title": "Alquiler",
-    "price": 454000,
-    "completed": true,
-    "yearMonth": "2026-08",
-    "isGain": false
-  },
-  {
-    "id": 14,
-    "title": "Expensas",
-    "price": 83000,
-    "completed": true,
-    "yearMonth": "2026-08",
-    "isGain": false
-  },
-  {
-    "id": 15,
-    "title": "Supermercado",
-    "price": 262000,
-    "completed": true,
-    "yearMonth": "2026-08",
-    "isGain": false
-  },
-  {
-    "id": 16,
-    "title": "Luz y gas",
-    "price": 56000,
-    "completed": true,
-    "yearMonth": "2026-08",
-    "isGain": false
-  },
-  {
-    "id": 17,
-    "title": "Internet y teléfono",
-    "price": 38000,
-    "completed": true,
-    "yearMonth": "2026-08",
-    "isGain": false
-  },
-  {
-    "id": 18,
-    "title": "Tarjeta de crédito",
-    "price": 339000,
+    "id": 20,
+    "title": "Gimnasio",
+    "price": 27000,
     "completed": true,
     "yearMonth": "2026-08",
     "isGain": false
@@ -72,11 +16,67 @@
     "isGain": false
   },
   {
-    "id": 20,
-    "title": "Gimnasio",
-    "price": 27000,
+    "id": 18,
+    "title": "Tarjeta de crédito",
+    "price": 339000,
     "completed": true,
     "yearMonth": "2026-08",
     "isGain": false
+  },
+  {
+    "id": 17,
+    "title": "Internet y teléfono",
+    "price": 38000,
+    "completed": true,
+    "yearMonth": "2026-08",
+    "isGain": false
+  },
+  {
+    "id": 16,
+    "title": "Luz y gas",
+    "price": 56000,
+    "completed": true,
+    "yearMonth": "2026-08",
+    "isGain": false
+  },
+  {
+    "id": 15,
+    "title": "Supermercado",
+    "price": 262000,
+    "completed": true,
+    "yearMonth": "2026-08",
+    "isGain": false
+  },
+  {
+    "id": 14,
+    "title": "Expensas",
+    "price": 83000,
+    "completed": true,
+    "yearMonth": "2026-08",
+    "isGain": false
+  },
+  {
+    "id": 13,
+    "title": "Alquiler",
+    "price": 454000,
+    "completed": true,
+    "yearMonth": "2026-08",
+    "isGain": false
+  },
+  {
+    "id": 12,
+    "title": "Trabajo freelance",
+    "price": 300000,
+    "completed": true,
+    "yearMonth": "2026-08",
+    "isGain": true
+  },
+  {
+    "id": 11,
+    "title": "Sueldo",
+    "price": 1500000,
+    "completed": true,
+    "yearMonth": "2026-08",
+    "isGain": true
   }
 ]

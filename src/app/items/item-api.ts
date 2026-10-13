@@ -4,8 +4,10 @@ import { Observable } from 'rxjs';
 import { apiEndpoints } from '../api/api-endpoints';
 import { Item } from './item';
 
+/** Datos de un ítem sin su identificador, para crearlo. */
+export type NewItem = Omit<Item, 'id'>;
 /** Campos de un ítem que se pueden modificar. */
-export type ItemChanges = Partial<Omit<Item, 'id'>>;
+export type ItemChanges = Partial<NewItem>;
 
 @Service()
 export class ItemApi {
@@ -22,9 +24,9 @@ export class ItemApi {
     return this.http.delete<void>(apiEndpoints.item(id));
   }
 
-  /** Recupera un ítem eliminado. */
-  restore(id: number): Observable<Item> {
-    return this.http.post<Item>(apiEndpoints.restoreItem(id), null);
+  /** Crea un ítem. */
+  create(item: NewItem): Observable<Item> {
+    return this.http.post<Item>(apiEndpoints.items(), item);
   }
 
   /** Crea una copia de un ítem en el mismo mes. */

@@ -50,14 +50,6 @@ export class MonthStore {
   /** Indica si hay un pedido de cierre o reapertura en curso. */
   readonly isChangingStatus = this.changingStatus.asReadonly();
 
-  /** Tareas que se ejecutan antes de dejar el mes seleccionado. */
-  private readonly leaveTasks: (() => Promise<unknown>)[] = [];
-
-  /** Registra una tarea que se ejecuta antes de dejar el mes seleccionado. */
-  onLeave(task: () => Promise<unknown>): void {
-    this.leaveTasks.push(task);
-  }
-
   /** Vuelve a pedir el resumen y los ítems del mes seleccionado. */
   refresh(): void {
     this.summary.reload();
@@ -99,15 +91,13 @@ export class MonthStore {
     );
   }
 
-  /** Cambia de mes; el que se deja se cierra si estaba reabierto, después de sus tareas pendientes. */
+  /** Cambia de mes: quita las tostadas con botón y cierra el mes que se deja si estaba reabierto. */
   private select(yearMonth: string): void {
     const leaving = this.yearMonth();
     const wasReopened = this.status() === 'reopened';
-    const pendingTasks = Promise.allSettled(this.leaveTasks.map((task) => task()));
+    this.toaster.dismissActions();
     this.selected.set(yearMonth);
-    if (wasReopened) {
-      void pendingTasks.then(() => this.closeLeftMonth(leaving));
-    }
+    if (wasReopened) this.closeLeftMonth(leaving);
   }
 
   /** Pide cerrar un mes que se dejó reabierto, sin esperar la respuesta. */
