@@ -2,13 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import { catchError, Observable, of } from 'rxjs';
 import { apiEndpoints } from '../api/api-endpoints';
-import { MonthStatus } from './month-status';
-
-/** Respuesta del backend al cerrar o reabrir un mes. */
-export interface MonthStatusResponse {
-  /** Estado en el que quedó el mes. */
-  status: MonthStatus;
-}
+import { MonthStatusResponse } from './month.interface';
 
 @Service()
 export class MonthApi {

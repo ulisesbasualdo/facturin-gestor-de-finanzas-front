@@ -2,12 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Service } from '@angular/core';
 import { Observable } from 'rxjs';
 import { apiEndpoints } from '../api/api-endpoints';
-import { Item } from './item';
-
-/** Datos de un ítem sin su identificador, para crearlo. */
-export type NewItem = Omit<Item, 'id'>;
-/** Campos de un ítem que se pueden modificar. */
-export type ItemChanges = Partial<NewItem>;
+import { Item, ItemChanges, NewItem } from './item.interface';
 
 @Service()
 export class ItemApi {

@@ -1,9 +1,9 @@
 import { httpResource } from '@angular/common/http';
 import { computed, inject, Service, signal } from '@angular/core';
-import { firstValueFrom, Observable } from 'rxjs';
 import { apiEndpoints } from '../api/api-endpoints';
 import { userErrorMessage } from '../api/http-error-message';
-import { Item, MonthlySummary } from '../items/item';
+import { Item } from '../items/item.interface';
+import { MonthlySummary } from '../summary/monthly-summary.interface';
 import { Toaster } from '../shared/toaster';
 import { addMonths, compareMonths, monthName, toYearMonth } from './calendar';
 import { MonthApi } from './month-api';
@@ -45,11 +45,6 @@ export class MonthStore {
     this.summary.hasValue() ? this.summary.value().monthStatus : undefined,
   );
 
-  /** Indica si hay un pedido de cierre o reapertura en curso, modificable solo desde este servicio. */
-  private readonly changingStatus = signal(false);
-  /** Indica si hay un pedido de cierre o reapertura en curso. */
-  readonly isChangingStatus = this.changingStatus.asReadonly();
-
   /** Vuelve a pedir el resumen y los ítems del mes seleccionado. */
   refresh(): void {
     this.summary.reload();
@@ -72,23 +67,27 @@ export class MonthStore {
   }
 
   /** Reabre el mes seleccionado. */
-  reopen(): Promise<void> {
+  reopen(): void {
     const yearMonth = this.yearMonth();
-    return this.changeStatus(
-      this.api.reopen(yearMonth),
-      `Reabriste ${monthName(yearMonth)}. Ya podés modificarlo.`,
-      'No pudimos reabrir el mes.',
-    );
+    this.api.reopen(yearMonth).subscribe({
+      next: () => {
+        this.toaster.success(`Reabriste ${monthName(yearMonth)}. Ya podés modificarlo.`);
+        this.summary.reload();
+      },
+      error: (error) => this.toaster.error(userErrorMessage(error, 'No pudimos reabrir el mes.')),
+    });
   }
 
   /** Vuelve a cerrar el mes seleccionado. */
-  close(): Promise<void> {
+  close(): void {
     const yearMonth = this.yearMonth();
-    return this.changeStatus(
-      this.api.close(yearMonth),
-      `Cerraste ${monthName(yearMonth)}.`,
-      'No pudimos cerrar el mes.',
-    );
+    this.api.close(yearMonth).subscribe({
+      next: () => {
+        this.toaster.success(`Cerraste ${monthName(yearMonth)}.`);
+        this.summary.reload();
+      },
+      error: (error) => this.toaster.error(userErrorMessage(error, 'No pudimos cerrar el mes.')),
+    });
   }
 
   /** Cambia de mes: quita las tostadas con botón y cierra el mes que se deja si estaba reabierto. */
@@ -107,25 +106,10 @@ export class MonthStore {
         this.toaster.success(`${monthName(leaving)} se volvió a cerrar.`);
         if (this.yearMonth() === leaving) this.summary.reload();
       },
-      error: () => undefined,
+      error: () =>
+        this.toaster.error(
+          `No pudimos cerrar ${monthName(leaving)}. Se va a cerrar la próxima vez que abras la app.`,
+        ),
     });
-  }
-
-  /** Envía un pedido de cierre o reapertura, avisa el resultado y recarga el resumen. */
-  private async changeStatus(
-    request: Observable<unknown>,
-    successMessage: string,
-    errorMessage: string,
-  ): Promise<void> {
-    this.changingStatus.set(true);
-    try {
-      await firstValueFrom(request);
-      this.toaster.success(successMessage);
-      this.summary.reload();
-    } catch (error) {
-      this.toaster.error(userErrorMessage(error, errorMessage));
-    } finally {
-      this.changingStatus.set(false);
-    }
   }
 }

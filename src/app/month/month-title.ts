@@ -1,9 +1,11 @@
 import { Component, computed, inject } from '@angular/core';
+import { ThrottledClick } from '../shared/throttled-click';
 import { formatDayMonth, monthName, yearOf } from './calendar';
 import { MonthStore } from './month-store';
 
 @Component({
   selector: 'app-month-title',
+  imports: [ThrottledClick],
   template: `
     <h1>
       {{ name() }} <span class="year">{{ year() }}</span>
@@ -12,20 +14,12 @@ import { MonthStore } from './month-store';
       <p>{{ status() }}</p>
       @switch (store.status()) {
         @case ('closed') {
-          <button
-            type="button"
-            [disabled]="store.isChangingStatus()"
-            (click)="store.reopen()"
-          >
+          <button type="button" appThrottledClick (throttledClick)="store.reopen()">
             Reabrir mes
           </button>
         }
         @case ('reopened') {
-          <button
-            type="button"
-            [disabled]="store.isChangingStatus()"
-            (click)="store.close()"
-          >
+          <button type="button" appThrottledClick (throttledClick)="store.close()">
             Cerrar mes
           </button>
         }
@@ -72,10 +66,6 @@ import { MonthStore } from './month-store';
     }
     button:hover:not(:disabled) {
       background: rgba(255, 255, 255, 0.06);
-    }
-    button:disabled {
-      opacity: 0.5;
-      cursor: default;
     }
   `,
 })

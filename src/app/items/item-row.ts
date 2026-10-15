@@ -1,10 +1,12 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, input, output } from '@angular/core';
 import { ThrottledClick } from '../shared/throttled-click';
-import { Item } from './item';
+import { Item } from './item.interface';
+import { ReturnFocus } from './return-focus';
 
 @Component({
   selector: 'app-item-row',
-  imports: [ThrottledClick],
+  imports: [NgTemplateOutlet, ThrottledClick, ReturnFocus],
   template: `
     @if (editable()) {
       <button
@@ -27,21 +29,38 @@ import { Item } from './item';
         }
       </span>
     }
-    <span class="glyph" aria-hidden="true">
-      <svg width="15" height="15" viewBox="0 0 24 24">
-        @if (item().isGain) {
-          <path d="M7 17L17 7" />
-          <path d="M8 7h9v9" />
-        } @else {
-          <path d="M7 7l10 10" />
-          <path d="M17 8v9H8" />
-        }
-      </svg>
-    </span>
-    <span class="sr-only">{{ item().isGain ? 'Ingreso' : 'Gasto' }}:</span>
-    <span class="title">{{ item().title }}</span>
-    <span class="chip">{{ status() }}</span>
-    <span class="amount num">{{ item().price }}</span>
+    <ng-template #content>
+      <span class="glyph" aria-hidden="true">
+        <svg width="15" height="15" viewBox="0 0 24 24">
+          @if (item().isGain) {
+            <path d="M7 17L17 7" />
+            <path d="M8 7h9v9" />
+          } @else {
+            <path d="M7 7l10 10" />
+            <path d="M17 8v9H8" />
+          }
+        </svg>
+      </span>
+      <span class="sr-only">{{ item().isGain ? 'Ingreso' : 'Gasto' }}:</span>
+      <span class="title">{{ item().title }}</span>
+      <span class="chip">{{ status() }}</span>
+      <span class="amount num">{{ item().price }}</span>
+    </ng-template>
+    @if (editable()) {
+      <button
+        type="button"
+        class="main"
+        [attr.aria-label]="'Editar ' + item().title"
+        [appReturnFocus]="{ mode: 'edit', id: item().id }"
+        (click)="edit.emit()"
+      >
+        <ng-container [ngTemplateOutlet]="content" />
+      </button>
+    } @else {
+      <span class="main">
+        <ng-container [ngTemplateOutlet]="content" />
+      </span>
+    }
     @if (editable()) {
       <span class="actions">
         <button
@@ -113,6 +132,16 @@ import { Item } from './item';
     :host(.done) .check {
       border: 1.5px solid var(--fx-text-1);
       background: var(--fx-text-1);
+    }
+    .main {
+      flex: 1;
+      min-width: 0;
+      align-self: stretch;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-align: left;
+      border-radius: var(--fx-radius-sm);
     }
     .glyph {
       flex: none;
@@ -233,6 +262,8 @@ export class ItemRow {
   /** Si es `true`, muestra los botones para modificar el movimiento. */
   readonly editable = input(false);
 
+  /** Se emite al pedir editar el movimiento. */
+  readonly edit = output();
   /** Se emite al pedir alternar entre completado y pendiente. */
   readonly toggle = output();
   /** Se emite al pedir duplicar el movimiento. */

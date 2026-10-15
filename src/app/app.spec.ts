@@ -1,8 +1,9 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { App } from './app';
-import { Item, MonthlySummary } from './items/item';
-import { MonthStatus } from './month/month-status';
+import { Item } from './items/item.interface';
+import { MonthlySummary } from './summary/monthly-summary.interface';
+import { MonthStatus } from './month/month.interface';
 
 describe('App', () => {
   /** Resumen de ejemplo que devuelve el backend falso. */

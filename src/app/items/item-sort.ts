@@ -1,11 +1,9 @@
-import { effect, Service, signal } from '@angular/core';
-import { Item } from './item';
-
-/** Criterio de orden de los movimientos. */
-export type ItemSort = 'recent' | 'priceDesc' | 'priceAsc';
+import { Service, signal } from '@angular/core';
+import { ItemSort, ItemSortOption } from './_definitions';
+import { Item } from './item.interface';
 
 /** Opciones de orden con su texto visible, en el orden en que se muestran. */
-export const ITEM_SORT_OPTIONS: readonly { value: ItemSort; label: string }[] = [
+export const ITEM_SORT_OPTIONS: readonly ItemSortOption[] = [
   { value: 'recent', label: 'Más recientes' },
   { value: 'priceDesc', label: 'Mayor monto' },
   { value: 'priceAsc', label: 'Menor monto' },
@@ -57,19 +55,14 @@ export class ItemSortPreference {
   /** Criterio de orden elegido. */
   readonly sort = this.selected.asReadonly();
 
-  constructor() {
-    effect(() => {
-      const sort = this.selected();
-      try {
-        localStorage.setItem(ITEM_SORT_STORAGE_KEY, sort);
-      } catch {
-        return;
-      }
-    });
-  }
-
-  /** Cambia el criterio de orden; ignora valores que no sean un criterio válido. */
+  /** Cambia el criterio de orden y lo guarda; ignora valores que no sean un criterio válido. */
   choose(value: unknown): void {
-    if (isItemSort(value)) this.selected.set(value);
+    if (!isItemSort(value)) return;
+    this.selected.set(value);
+    try {
+      localStorage.setItem(ITEM_SORT_STORAGE_KEY, value);
+    } catch {
+      return;
+    }
   }
 }

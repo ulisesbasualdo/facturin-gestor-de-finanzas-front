@@ -1,3 +1,5 @@
+import { MonthTiming } from './month.interface';
+
 /** Formateador del nombre del mes (`octubre`). */
 const monthFormatter = new Intl.DateTimeFormat('es-AR', { month: 'long' });
 /** Formateador de día y mes (`7 de octubre`). */
@@ -9,9 +11,6 @@ const longDateFormatter = new Intl.DateTimeFormat('es-AR', {
   month: 'long',
   year: 'numeric',
 });
-
-/** Posición de un mes respecto de otro: pasado, actual o futuro. */
-export type MonthTiming = 'past' | 'current' | 'future';
 
 /** Convierte una fecha al formato `YYYY-MM`. */
 export function toYearMonth(date: Date): string {

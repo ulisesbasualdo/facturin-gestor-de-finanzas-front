@@ -1,0 +1,74 @@
+<form
+  class="editor"
+  [formRoot]="itemForm"
+  [attr.aria-label]="isNew() ? 'Nuevo movimiento' : 'Editar movimiento'"
+>
+  <label class="check">
+    <input type="checkbox" [formField]="itemForm.completed" />
+    <span class="sr-only">{{ completedLabel() }}</span>
+    @if (itemForm.completed().value()) {
+      <svg class="tick" width="13" height="13" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20 6L9 17l-5-5" />
+      </svg>
+    }
+  </label>
+
+  <fieldset class="kind">
+    <legend class="sr-only">Tipo de movimiento</legend>
+    <label>
+      <input type="radio" value="income" [formField]="itemForm.kind" />
+      <span>Ingreso</span>
+    </label>
+    <label>
+      <input type="radio" value="expense" [formField]="itemForm.kind" />
+      <span>Gasto</span>
+    </label>
+  </fieldset>
+
+  <label class="field title">
+    <span class="sr-only">Título</span>
+    <input
+      #titleInput
+      type="text"
+      autocomplete="off"
+      placeholder="Título del movimiento"
+      [formField]="itemForm.title"
+      [attr.aria-invalid]="titleInvalid()"
+      [attr.aria-describedby]="errorsId"
+    />
+  </label>
+
+  <label class="field price">
+    <span class="sr-only">Monto</span>
+    <input
+      type="text"
+      class="num"
+      inputmode="decimal"
+      autocomplete="off"
+      placeholder="0.00"
+      [formField]="itemForm.price"
+      [attr.aria-invalid]="priceInvalid()"
+      [attr.aria-describedby]="errorsId"
+    />
+  </label>
+
+  <button type="submit" class="primary">{{ isNew() ? 'Agregar' : 'Guardar' }}</button>
+  <button
+    type="button"
+    class="icon-button"
+    [attr.aria-label]="isNew() ? 'Descartar' : 'Cancelar'"
+    title="Cancelar (Esc)"
+    (click)="cancel()"
+  >
+    <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M6 6l12 12" />
+      <path d="M18 6L6 18" />
+    </svg>
+  </button>
+</form>
+
+<div class="errors" [id]="errorsId" aria-live="polite">
+  @for (message of errorMessages(); track message) {
+    <p>{{ message }}</p>
+  }
+</div>

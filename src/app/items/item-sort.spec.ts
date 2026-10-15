@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { Item } from './item';
+import { Item } from './item.interface';
 import { DEFAULT_ITEM_SORT, ITEM_SORT_STORAGE_KEY, ItemSortPreference, sortItems } from './item-sort';
 
 /** Crea un ítem de prueba con el id y el monto indicados. */
@@ -57,7 +57,6 @@ describe('ItemSortPreference', () => {
     const preference = TestBed.inject(ItemSortPreference);
 
     preference.choose('priceDesc');
-    TestBed.tick();
 
     expect(preference.sort()).toBe('priceDesc');
     expect(localStorage.getItem(ITEM_SORT_STORAGE_KEY)).toBe('priceDesc');
